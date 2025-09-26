@@ -108,11 +108,11 @@
         setDisabled(true);
         setStatus('Memproses…');
 
-        const r = await fetch(WEB_APP_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, access: accessEl.value || null })
-        });
+      const r = await fetch(WEB_APP_URL, {
+        method: 'POST',
+        // jangan set Content-Type agar tidak preflight
+        body: JSON.stringify({ email, access: accessEl.value || null })
+      });
         const data = await r.json();
 
         if (data.ok) {
