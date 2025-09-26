@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Email Collector – Canva Team</title>
+  <style>
+    :root { --bg:#0f172a; --muted:#9ca3af; --text:#e5e7eb; --accent:#22c55e; --danger:#ef4444; }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Helvetica,Arial,sans-serif;background:linear-gradient(180deg,#0b1220,#0f172a 20%);color:var(--text)}
+    .container{max-width:800px;margin:40px auto;padding:20px}
+    .card{background:rgba(17,24,39,.75);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.06);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    .header{padding:22px 24px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between}
+    h1{font-size:20px;margin:0;font-weight:700}
+    .muted{color:var(--muted);font-size:13px}
+    .body{padding:20px}
+    .stack{display:flex;gap:10px}
+    input,button{font:inherit}
+    input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:#0b1220;color:#e5e7eb;outline:none}
+    button{padding:11px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:#121a2a;color:#e5e7eb;cursor:pointer}
+    button.primary{background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:#08140e;font-weight:700}
+    button.ghost{background:#0b1220}
+    button.danger{background:#1b0d10;border-color:#3b0f14;color:#fecaca}
+    button:disabled{opacity:.6;cursor:not-allowed}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .table{margin-top:18px;border:1px solid rgba(255,255,255,.06);border-radius:12px;overflow:hidden}
+    table{width:100%;border-collapse:collapse}
+    thead{background:#0c1322;color:#cbd5e1}
+    th,td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.06);text-align:left;font-size:14px}
+    tr:last-child td{border-bottom:none}
+    .badge{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.08);border-radius:999px;padding:6px 10px;font-size:12px;background:#0b1220}
+    .footer{padding:16px 24px;border-top:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center}
+    .notice{font-size:12px;color:#a1a1aa}
+    .progress{height:8px;background:#0b1220;border:1px solid rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin-top:8px}
+    .progress>i{display:block;height:100%;background:linear-gradient(90deg,#22c55e,#16a34a)}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <div>
+          <h1>Daftar Email Anggota</h1>
+          <div class="muted">Masukkan email satu per satu. Maksimum 100 email.</div>
+        </div>
+        <div class="badge" id="counter">0/100</div>
+      </div>
+
+      <div class="body">
+        <label class="muted">Tambah satu email</label>
+        <div class="stack">
+          <input id="emailInput" type="email" placeholder="nama@email.com" aria-label="Email" />
+          <button class="primary" id="addBtn">Tambah</button>
+        </div>
+        <div class="progress"><i id="bar" style="width:0%"></i></div>
+        <div class="muted" id="limitMsg"></div>
+
+        <div class="toolbar">
+          <button id="copyAll">Copy semua (koma)</button>
+          <button id="exportCsv">Export CSV</button>
+          <button id="importCsv">Import CSV</button>
+          <input id="csvFile" type="file" accept=".csv" style="display:none" />
+          <button class="danger" id="clearAll">Hapus semua</button>
+        </div>
+
+        <div class="table" id="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:50%">Email</th>
+                <th>Ditambahkan</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="notice">Data tersimpan di perangkat (localStorage). Anda bisa export untuk dibackup atau dipindah.</div>
+        <div class="notice">Versi sederhana v1.2</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MAX = 100;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+    const storeKey = 'canva_email_list_v1';
+
+    let items = [];
+
+    const $ = (id)=>document.getElementById(id);
+    const tbody = $('tbody');
+    const counter = $('counter');
+    const emailInput = $('emailInput');
+    const bar = $('bar');
+    const limitMsg = $('limitMsg');
+
+    function formatDate(ts){
+      try{ return new Date(ts).toLocaleString('id-ID', { hour12:false }); }
+      catch{ return '' }
+    }
+
+    function save(){
+      localStorage.setItem(storeKey, JSON.stringify(items));
+      render();
+    }
+
+    function load(){
+      try{ items = JSON.parse(localStorage.getItem(storeKey)||'[]')||[] }catch{ items = [] }
+      render();
+    }
+
+    function render(){
+      counter.textContent = `${items.length}/${MAX}`;
+      const pct = (items.length / MAX) * 100;
+      const barEl = document.getElementById('bar');
+      if (barEl) barEl.style.width = pct + '%';
+      limitMsg.textContent = items.length>=MAX ? 'Limit tercapai. Hapus semua email untuk menambah baru.' : '';
+      emailInput.disabled = items.length>=MAX;
+      const addBtn = $('addBtn'); if (addBtn) addBtn.disabled = items.length>=MAX;
+      tbody.innerHTML = '';
+      items.forEach((row)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><code>${escapeHtml(row.email)}</code></td>
+          <td>${formatDate(row.added)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function escapeHtml(s){
+      return s.replace(/[&<>"']/g, (c)=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;' }[c]));
+    }
+
+    function addEmail(email){
+      email = (email||'').trim();
+      if(!emailRegex.test(email)) return {ok:false, reason:'invalid'};
+      if(items.length>=MAX) return {ok:false, reason:'limit'};
+      const exists = items.some(e=>e.email.toLowerCase()===email.toLowerCase());
+      if(exists) return {ok:false, reason:'duplicate'};
+      items.push({ email, added: Date.now() });
+      save();
+      return {ok:true};
+    }
+
+    document.addEventListener('DOMContentLoaded', load);
+
+    document.getElementById('addBtn').onclick = ()=>{
+      const v = emailInput.value;
+      const res = addEmail(v);
+      if(res.ok){ emailInput.value=''; emailInput.focus(); }
+      else{
+        const map = {invalid:'Email tidak valid', duplicate:'Email sudah ada', limit:'Maksimum 100 email tercapai'};
+        alert(map[res.reason]||'Gagal menambah email');
+      }
+    };
+
+    emailInput.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter'){ e.preventDefault(); document.getElementById('addBtn').click(); }
+    });
+
+    document.getElementById('clearAll').onclick = ()=>{ if(confirm('Hapus semua email?')){ items=[]; save(); } };
+
+    document.getElementById('copyAll').onclick = async ()=>{
+      const text = items.map(i=>i.email).join(', ');
+      try{ await navigator.clipboard.writeText(text); alert('Disalin ke clipboard'); }
+      catch{ prompt('Salin manual:', text); }
+    };
+
+    document.getElementById('exportCsv').onclick = ()=>{
+      const header = 'email,added_iso\n';
+      const body = items.map(i=>`${i.email},${new Date(i.added).toISOString()}`).join('\n');
+      const blob = new Blob([header+body], {type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href=url; a.download='emails-canva-team.csv'; a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    document.getElementById('importCsv').onclick = ()=>{ document.getElementById('csvFile').click(); };
+
+    document.getElementById('csvFile').addEventListener('change', async (e)=>{
+      const file = e.target.files?.[0]; if(!file) return;
+      const text = await file.text();
+      const lines = text.split(/\r?\n/).filter(Boolean);
+      let added=0; let skipped=0;
+      for(const line of lines.slice(1)){
+        if(items.length>=MAX) break;
+        const [email] = line.split(',');
+        const r = addEmail(email);
+        if(r.ok) added++; else skipped++;
+      }
+      alert(`Import selesai. Ditambahkan: ${added}. Dilewati: ${skipped}.`);
+    });
+  </script>
+</body>
+</html>
