@@ -1,88 +1,134 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Email Collector – Canva Team (Shared Permissive)</title>
-  <style>
-    :root { --bg:#0f172a; --muted:#9ca3af; --text:#e5e7eb; --accent:#22c55e; --danger:#ef4444; }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Helvetica,Arial,sans-serif;background:linear-gradient(180deg,#0b1220,#0f172a 20%);color:#e5e7eb}
-    .container{max-width:800px;margin:40px auto;padding:20px}
-    .card{background:rgba(17,24,39,.75);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.06);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
-    .header{padding:22px 24px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between}
-    h1{font-size:20px;margin:0;font-weight:700}
-    .muted{color:#9ca3af;font-size:13px}
-    .body{padding:20px}
-    .stack{display:flex;gap:10px}
-    input,button{font:inherit}
-    input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:#0b1220;color:#e5e7eb;outline:none}
-    button{padding:11px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:#121a2a;color:#e5e7eb;cursor:pointer}
-    button.primary{background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:#08140e;font-weight:700}
-    .status{margin-top:10px;font-size:13px} .ok{color:#86efac} .err{color:#fca5a5}
-    .table{margin-top:18px;border:1px solid rgba(255,255,255,.06);border-radius:12px;overflow:hidden}
-    table{width:100%;border-collapse:collapse}
-    thead{background:#0c1322;color:#cbd5e1}
-    th,td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.06);text-align:left;font-size:14px}
-  </style>
+  <title>Daftar Email Canva Pro (Maks 50)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <div class="container">
-    <div class="card">
-      <div class="header">
+<body class="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+  <div class="w-full max-w-md">
+    <div class="bg-white rounded-2xl shadow-lg p-6">
+      <h1 class="text-2xl font-bold tracking-tight">Daftar Email Canva Pro</h1>
+      <p class="text-sm text-slate-600 mt-1">Masukkan email yang akan diundang ke tim Canva Pro. Batas maksimal <span class="font-semibold">50</span> alamat.</p>
+
+      <div id="status" class="mt-3 text-sm text-slate-700 hidden"></div>
+
+      <form id="emailForm" class="mt-4 space-y-4">
+        <!-- OPSIONAL: akses kode per pengguna. Set OP_ACCESS_CODE di bawah JS -->
         <div>
-          <h1>Daftar Email Anggota</h1>
-          <div class="muted">Validasi email disederhanakan agar tidak menolak alamat yang benar.</div>
+          <label for="access" class="block text-sm font-medium">Kode Akses (opsional)</label>
+          <input id="access" name="access" type="text" placeholder="Masukkan kode jika diminta" class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-400" />
         </div>
-        <div class="muted" id="counter">0/100</div>
+
+        <div>
+          <label for="email" class="block text-sm font-medium">Email</label>
+          <input id="email" name="email" type="email" required placeholder="nama@domain.com" class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-400" />
+        </div>
+
+        <button type="submit" class="w-full rounded-xl bg-slate-900 text-white py-2.5 font-medium hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed">Kirim</button>
+      </form>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <span class="font-semibold">Terdaftar:</span> <span id="count">–</span>/50
       </div>
 
-      <div class="body">
-        <div class="stack">
-          <input id="emailInput" type="email" placeholder="nama@email.com" />
-          <button id="addBtn" class="primary" type="button">Tambah</button>
-        </div>
-        <div id="status" class="status muted"></div>
-
-        <div class="table"><table><thead><tr><th>Email</th><th>Ditambahkan</th></tr></thead><tbody id="tbody"></tbody></table></div>
+      <div id="limitBanner" class="mt-3 hidden rounded-xl border border-amber-300 bg-amber-50 text-amber-800 p-3 text-sm">
+        Kuota sudah penuh (50/50). Formulir dinonaktifkan.
       </div>
     </div>
+
+    <p class="text-center text-xs text-slate-500 mt-4">© <span id="year"></span> — Canva Pro Intake</p>
   </div>
 
   <script>
-    const GSHEET_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxMh3yTskBeETOdfPweJlBcQhRiqQ8IEDBXFqexi1QLpWkOloDfkWGRzlF0EGZfD643/exec';
-    const MAX = 100;
-    // Lebih longgar: cukup ada sesuatu sebelum @, sesudah @, dan ada titik
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const storeKey = 'canva_email_list_shared_perm_v1';
+    // ======= KONFIGURASI =======
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6TYzqIsXpxzTYLc5N3IeAuAkBZUDn_wZACFFPplP_GQ83fooaZkDsocUenRvyZg0J_A/exec"; // ganti setelah deploy Apps Script
 
-    let items = [];
-    const $ = (id)=>document.getElementById(id);
-    const tbody = $('tbody');
+    // Aktifkan akses kode? true/false
+    const USE_ACCESS_CODE = false;
+    const OP_ACCESS_CODE = "KODE-ANDA-123"; // jika USE_ACCESS_CODE=true, isi kode di sini
 
-    function setStatus(t, cls=''){ const s=$('status'); s.className='status '+cls; s.textContent=t; }
-    function fmt(ts){ try{ return new Date(ts).toLocaleString('id-ID', {hour12:false}); }catch{ return '' } }
-    function render(){ $('counter').textContent=`${items.length}/100`; tbody.innerHTML=''; items.forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td><code>${r.email}</code></td><td>${fmt(r.added)}</td>`; tbody.appendChild(tr); }); }
-    function save(){ localStorage.setItem(storeKey, JSON.stringify(items)); render(); }
-    async function fetchList(){ try{ const r=await fetch(GSHEET_ENDPOINT); const j=await r.json(); if(j.ok){ items=j.data.map(d=>({email:d.email, added: Date.parse(d.added_iso)||Date.now()})); save(); setStatus('Memuat dari server: '+items.length+' email','ok'); } else setStatus('Gagal memuat','err'); }catch(e){ setStatus('Gagal jaringan','err'); } }
+    // ======= UTIL =======
+    const statusEl = document.getElementById('status');
+    const countEl = document.getElementById('count');
+    const formEl = document.getElementById('emailForm');
+    const emailEl = document.getElementById('email');
+    const accessEl = document.getElementById('access');
+    const limitBanner = document.getElementById('limitBanner');
 
-    async function addRemote(email){ try{ const body=new URLSearchParams({email}); const r=await fetch(GSHEET_ENDPOINT, {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'}, body}); const j=await r.json(); return j; }catch(e){ return {ok:false, error:'network'}; } }
+    const setStatus = (msg, ok=true) => {
+      statusEl.classList.remove('hidden');
+      statusEl.className = `mt-3 text-sm p-3 rounded-xl ${ok ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`;
+      statusEl.textContent = msg;
+    };
 
-    document.addEventListener('DOMContentLoaded', async ()=>{ await fetchList(); });
+    const setDisabled = (disabled) => {
+      [...formEl.elements].forEach(el => el.disabled = disabled);
+    };
 
-    $('addBtn').onclick = async ()=>{
-      const v = $('emailInput').value.trim();
-      if(!emailRegex.test(v)){ setStatus('Format email tidak sesuai (coba lagi).','err'); alert('Email tidak valid'); return; }
-      if(items.some(e=>e.email.toLowerCase()===v.toLowerCase())){ setStatus('Email sudah ada.','err'); alert('Email sudah ada'); return; }
-      if(items.length>=MAX){ setStatus('Limit 100 tercapai.','err'); alert('Maksimum 100 email tercapai'); return; }
-      const res = await addRemote(v);
-      if(res.ok){ items.push({email:v, added: Date.now()}); save(); $('emailInput').value=''; setStatus('Tersimpan ✔','ok'); }
-      else {
-        const map={duplicate:'Email sudah ada', invalid:'Email tidak valid (server)', limit:'Maksimum 100 (server)', network:'Gagal jaringan'};
-        alert(map[res.error]||('Gagal: '+res.error));
-        setStatus(map[res.error]||('Gagal: '+res.error),'err');
+    const refreshCount = async () => {
+      try {
+        const r = await fetch(WEB_APP_URL + '?mode=count');
+        const data = await r.json();
+        countEl.textContent = data.count ?? '0';
+        if (data.count >= 50) {
+          setDisabled(true);
+          limitBanner.classList.remove('hidden');
+        }
+      } catch (e) {
+        // silent; tampilkan strip
       }
     };
+
+    // ======= INIT =======
+    document.getElementById('year').textContent = new Date().getFullYear();
+    refreshCount();
+
+    // ======= SUBMIT =======
+    formEl.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (USE_ACCESS_CODE) {
+        if (!accessEl.value || accessEl.value.trim() !== OP_ACCESS_CODE) {
+          setStatus('Kode akses salah atau kosong.', false);
+          return;
+        }
+      }
+
+      const email = emailEl.value.trim();
+      // Validasi email sederhana
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+      if (!emailRegex.test(email)) {
+        setStatus('Format email tidak valid.', false);
+        return;
+      }
+
+      try {
+        setDisabled(true);
+        setStatus('Memproses…');
+
+        const r = await fetch(WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, access: accessEl.value || null })
+        });
+        const data = await r.json();
+
+        if (data.ok) {
+          setStatus('Berhasil disimpan. Cek email undangan dari Canva Pro (jika sudah dikirim oleh admin).', true);
+          emailEl.value = '';
+          accessEl.value = '';
+          await refreshCount();
+        } else {
+          setStatus(data.message || 'Gagal menyimpan.', false);
+        }
+      } catch (err) {
+        setStatus('Terjadi kesalahan jaringan. Coba lagi.', false);
+      } finally {
+        setDisabled(false);
+      }
+    });
   </script>
 </body>
 </html>
