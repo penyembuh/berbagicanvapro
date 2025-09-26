@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Email Collector – Canva Team (Shared Permissive)</title>
+  <style>
+    :root { --bg:#0f172a; --muted:#9ca3af; --text:#e5e7eb; --accent:#22c55e; --danger:#ef4444; }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Helvetica,Arial,sans-serif;background:linear-gradient(180deg,#0b1220,#0f172a 20%);color:#e5e7eb}
+    .container{max-width:800px;margin:40px auto;padding:20px}
+    .card{background:rgba(17,24,39,.75);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.06);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    .header{padding:22px 24px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between}
+    h1{font-size:20px;margin:0;font-weight:700}
+    .muted{color:#9ca3af;font-size:13px}
+    .body{padding:20px}
+    .stack{display:flex;gap:10px}
+    input,button{font:inherit}
+    input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:#0b1220;color:#e5e7eb;outline:none}
+    button{padding:11px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:#121a2a;color:#e5e7eb;cursor:pointer}
+    button.primary{background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:#08140e;font-weight:700}
+    .status{margin-top:10px;font-size:13px} .ok{color:#86efac} .err{color:#fca5a5}
+    .table{margin-top:18px;border:1px solid rgba(255,255,255,.06);border-radius:12px;overflow:hidden}
+    table{width:100%;border-collapse:collapse}
+    thead{background:#0c1322;color:#cbd5e1}
+    th,td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.06);text-align:left;font-size:14px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <div>
+          <h1>Daftar Email Anggota</h1>
+          <div class="muted">Validasi email disederhanakan agar tidak menolak alamat yang benar.</div>
+        </div>
+        <div class="muted" id="counter">0/100</div>
+      </div>
+
+      <div class="body">
+        <div class="stack">
+          <input id="emailInput" type="email" placeholder="nama@email.com" />
+          <button id="addBtn" class="primary" type="button">Tambah</button>
+        </div>
+        <div id="status" class="status muted"></div>
+
+        <div class="table"><table><thead><tr><th>Email</th><th>Ditambahkan</th></tr></thead><tbody id="tbody"></tbody></table></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const GSHEET_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxMh3yTskBeETOdfPweJlBcQhRiqQ8IEDBXFqexi1QLpWkOloDfkWGRzlF0EGZfD643/exec';
+    const MAX = 100;
+    // Lebih longgar: cukup ada sesuatu sebelum @, sesudah @, dan ada titik
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const storeKey = 'canva_email_list_shared_perm_v1';
+
+    let items = [];
+    const $ = (id)=>document.getElementById(id);
+    const tbody = $('tbody');
+
+    function setStatus(t, cls=''){ const s=$('status'); s.className='status '+cls; s.textContent=t; }
+    function fmt(ts){ try{ return new Date(ts).toLocaleString('id-ID', {hour12:false}); }catch{ return '' } }
+    function render(){ $('counter').textContent=`${items.length}/100`; tbody.innerHTML=''; items.forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td><code>${r.email}</code></td><td>${fmt(r.added)}</td>`; tbody.appendChild(tr); }); }
+    function save(){ localStorage.setItem(storeKey, JSON.stringify(items)); render(); }
+    async function fetchList(){ try{ const r=await fetch(GSHEET_ENDPOINT); const j=await r.json(); if(j.ok){ items=j.data.map(d=>({email:d.email, added: Date.parse(d.added_iso)||Date.now()})); save(); setStatus('Memuat dari server: '+items.length+' email','ok'); } else setStatus('Gagal memuat','err'); }catch(e){ setStatus('Gagal jaringan','err'); } }
+
+    async function addRemote(email){ try{ const body=new URLSearchParams({email}); const r=await fetch(GSHEET_ENDPOINT, {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'}, body}); const j=await r.json(); return j; }catch(e){ return {ok:false, error:'network'}; } }
+
+    document.addEventListener('DOMContentLoaded', async ()=>{ await fetchList(); });
+
+    $('addBtn').onclick = async ()=>{
+      const v = $('emailInput').value.trim();
+      if(!emailRegex.test(v)){ setStatus('Format email tidak sesuai (coba lagi).','err'); alert('Email tidak valid'); return; }
+      if(items.some(e=>e.email.toLowerCase()===v.toLowerCase())){ setStatus('Email sudah ada.','err'); alert('Email sudah ada'); return; }
+      if(items.length>=MAX){ setStatus('Limit 100 tercapai.','err'); alert('Maksimum 100 email tercapai'); return; }
+      const res = await addRemote(v);
+      if(res.ok){ items.push({email:v, added: Date.now()}); save(); $('emailInput').value=''; setStatus('Tersimpan ✔','ok'); }
+      else {
+        const map={duplicate:'Email sudah ada', invalid:'Email tidak valid (server)', limit:'Maksimum 100 (server)', network:'Gagal jaringan'};
+        alert(map[res.error]||('Gagal: '+res.error));
+        setStatus(map[res.error]||('Gagal: '+res.error),'err');
+      }
+    };
+  </script>
+</body>
+</html>
