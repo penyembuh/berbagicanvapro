@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Email Collector – Canva Team (Shared)</title>
+  <style>
+    :root { --bg:#0f172a; --muted:#9ca3af; --text:#e5e7eb; --accent:#22c55e; --danger:#ef4444; }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Helvetica,Arial,sans-serif;background:linear-gradient(180deg,#0b1220,#0f172a 20%);color:var(--text)}
+    .container{max-width:800px;margin:40px auto;padding:20px}
+    .card{background:rgba(17,24,39,.75);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.06);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    .header{padding:22px 24px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between}
+    h1{font-size:20px;margin:0;font-weight:700}
+    .muted{color:var(--muted);font-size:13px}
+    .body{padding:20px}
+    .stack{display:flex;gap:10px}
+    input,button{font:inherit}
+    input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:#0b1220;color:#e5e7eb;outline:none}
+    button{padding:11px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:#121a2a;color:#e5e7eb;cursor:pointer}
+    button.primary{background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:#08140e;font-weight:700}
+    button.danger{background:#1b0d10;border-color:#3b0f14;color:#fecaca}
+    button:disabled{opacity:.6;cursor:not-allowed}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .table{margin-top:18px;border:1px solid rgba(255,255,255,.06);border-radius:12px;overflow:hidden}
+    table{width:100%;border-collapse:collapse}
+    thead{background:#0c1322;color:#cbd5e1}
+    th,td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.06);text-align:left;font-size:14px}
+    tr:last-child td{border-bottom:none}
+    .badge{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.08);border-radius:999px;padding:6px 10px;font-size:12px;background:#0b1220}
+    .footer{padding:16px 24px;border-top:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center}
+    .notice{font-size:12px;color:#a1a1aa}
+    .progress{height:8px;background:#0b1220;border:1px solid rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin-top:8px}
+    .progress>i{display:block;height:100%;background:linear-gradient(90deg,#22c55e,#16a34a)}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <div>
+          <h1>Daftar Email Anggota</h1>
+          <div class="muted">Masukkan email satu per satu (max 100, tersimpan ke Google Sheet).</div>
+        </div>
+        <div class="badge" id="counter">0/100</div>
+      </div>
+
+      <div class="body">
+        <label class="muted">Tambah satu email</label>
+        <div class="stack">
+          <input id="emailInput" type="email" placeholder="nama@email.com" aria-label="Email" />
+          <button class="primary" id="addBtn">Tambah</button>
+        </div>
+        <div class="progress"><i id="bar" style="width:0%"></i></div>
+        <div class="muted" id="limitMsg"></div>
+
+        <div class="toolbar">
+          <button id="copyAll">Copy semua (koma)</button>
+          <button id="exportCsv">Export CSV</button>
+          <button class="danger" id="clearLocal">Bersihkan cache lokal</button>
+        </div>
+
+        <div class="table" id="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:50%">Email</th>
+                <th>Ditambahkan</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="notice">Data utama ada di Google Sheets (dibaca saat halaman dibuka). Cache lokal hanya untuk tampilan cepat.</div>
+        <div class="notice">Versi shared v2.1 (CORS-safe)</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const GSHEET_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxMh3yTskBeETOdfPweJlBcQhRiqQ8IEDBXFqexi1QLpWkOloDfkWGRzlF0EGZfD643/exec';
+
+    const MAX = 100;
+    const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/i;
+    const storeKey = 'canva_email_list_shared_v21';
+
+    let items = []; // [{email, added}]
+    const $ = (id)=>document.getElementById(id);
+    const tbody = $('tbody');
+    const emailInput = $('emailInput');
+    const limitMsg = $('limitMsg');
+
+    function formatDate(ts){ try{ return new Date(ts).toLocaleString('id-ID', { hour12:false }); }catch{ return '' } }
+    function saveLocal(){ localStorage.setItem(storeKey, JSON.stringify(items)); render(); }
+    function loadLocal(){ try{ items = JSON.parse(localStorage.getItem(storeKey)||'[]')||[] }catch{ items = [] } render(); }
+
+    function render(){
+      document.getElementById('counter').textContent = `${items.length}/${MAX}`;
+      const bar = document.querySelector('#bar');
+      if(bar) bar.style.width = Math.min(100, (items.length/MAX)*100) + '%';
+      limitMsg.textContent = items.length>=MAX ? 'Limit tercapai (100). Tidak bisa menambah lagi.' : '';
+      emailInput.disabled = items.length>=MAX;
+      document.getElementById('addBtn').disabled = items.length>=MAX;
+      tbody.innerHTML = '';
+      items.forEach(row=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><code>${escapeHtml(row.email)}</code></td>
+          <td>${formatDate(row.added)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    function escapeHtml(s){ return (s||'').replace(/[&<>\"']/g, (c)=>({ '&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;','\\'':'&#39;' }[c])); }
+
+    async function fetchRemoteList(){
+      try{
+        const res = await fetch(GSHEET_ENDPOINT + '?t=' + Date.now(), { cache:'no-store' });
+        const j = await res.json();
+        if(j.ok && Array.isArray(j.data)){
+          items = j.data.map(r => ({ email: r.email, added: Date.parse(r.added_iso)||Date.now() }));
+          saveLocal();
+        }else{
+          console.warn('GSheet fetch error', j);
+        }
+      }catch(err){
+        console.error('fetchRemoteList error', err);
+      }
+    }
+
+    // Use form-encoded to avoid CORS preflight
+    async function postEmailToServer(email){
+      const body = new URLSearchParams({ email });
+      const res = await fetch(GSHEET_ENDPOINT, {
+        method:'POST',
+        headers: { 'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8' },
+        body
+      });
+      const j = await res.json();
+      return j;
+    }
+
+    async function addEmailRemote(email){
+      email = (email||'').trim();
+      if(!emailRegex.test(email)) return {ok:false, reason:'invalid'};
+      if(items.length>=MAX) return {ok:false, reason:'limit'};
+      if(items.some(e=>e.email.toLowerCase()===email.toLowerCase())) return {ok:false, reason:'duplicate'};
+
+      try{
+        const r = await postEmailToServer(email);
+        if(r.ok){
+          const when = Date.parse((r.added && r.added.added_iso) || new Date().toISOString()) || Date.now();
+          items.push({ email, added: when });
+          saveLocal();
+          return {ok:true};
+        }else{
+          return {ok:false, reason: r.error||'server'};
+        }
+      }catch(err){
+        console.error(err);
+        return {ok:false, reason:'network'};
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async ()=>{ loadLocal(); await fetchRemoteList(); });
+
+    document.getElementById('addBtn').onclick = async ()=>{
+      const v = emailInput.value;
+      const res = await addEmailRemote(v);
+      if(res.ok){ emailInput.value=''; emailInput.focus(); }
+      else{
+        const map = { invalid:'Email tidak valid', duplicate:'Email sudah ada', limit:'Maksimum 100 email tercapai', server:'Gagal dari server', network:'Gagal jaringan' };
+        alert(map[res.reason] || ('Gagal menambah: '+res.reason));
+      }
+    };
+
+    document.getElementById('copyAll').onclick = async ()=>{
+      const text = items.map(i=>i.email).join(', ');
+      try{ await navigator.clipboard.writeText(text); alert('Disalin ke clipboard'); }
+      catch{ prompt('Salin manual:', text); }
+    };
+
+    document.getElementById('exportCsv').onclick = ()=>{
+      const header = 'email,added_iso\\n';
+      const body = items.map(i=>`${i.email},${new Date(i.added).toISOString()}`).join('\\n');
+      const blob = new Blob([header+body], {type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href=url; a.download='emails-canva-team.csv'; a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    document.getElementById('clearLocal').onclick = ()=>{ if(confirm('Bersihkan cache lokal (tidak menghapus data di Sheets)?')){ items=[]; saveLocal(); fetchRemoteList(); } };
+  </script>
+</body>
+</html>
