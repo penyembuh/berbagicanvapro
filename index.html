@@ -46,7 +46,7 @@
 
   <script>
     // ======= KONFIGURASI =======
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwM7eXvwp1VkOp1mnAryz01O7PXy482_JlirOmoOveSIok5ROsESXwLFXBQiQjEumuz4Q/exec"; // ganti setelah deploy Apps Script
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxoJDN198Ghjq2jM91Wvs4rUFOqRngbRzXgDoHZnQHOLnhKe5q5nUmF0SNYF6l95d8MVw/exec"; // ganti setelah deploy Apps Script
 
     const statusEl = document.getElementById('status');
     const countEl = document.getElementById('count');
@@ -102,12 +102,14 @@
         form.set('email', email);
         form.set('access', accessEl.value || '');
 
-        const r = await fetch(WEB_APP_URL, {
-          method: 'POST',
-          body: form // tidak pakai headers agar tidak preflight CORS
-        });
+        const params = new URLSearchParams({
+  mode: 'submit',
+  email: emailEl.value.trim(),
+  access: accessEl.value || ''
+});
+const r = await fetch(WEB_APP_URL + '?' + params.toString()); // GET
+const data = await r.json();
 
-        const data = await r.json();
         if (data.ok) {
           setStatus('Berhasil disimpan. Cek email undangan dari Canva Pro (jika sudah dikirim oleh admin).', true);
           emailEl.value = '';
