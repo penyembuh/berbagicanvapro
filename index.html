@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Daftar Email Canva Pro</title>
+  <title>Form Input Email</title>
   <style>
-    :root { --bg:#0f172a; --card:#111827; --muted:#9ca3af; --text:#e5e7eb; --accent:#22c55e; --danger:#ef4444; }
-    *{box-sizing:border-box} body{margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif; background:linear-gradient(180deg,#0b1220,#0f172a 30%);} 
+    :root { --bg:#0f172a; --muted:#9ca3af; --text:#e5e7eb; --accent:#22c55e; --danger:#ef4444; }
+    *{box-sizing:border-box} body{margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif; background:linear-gradient(180deg,#0b1220,#0f172a 30%);}
     .container{min-height:100dvh; display:grid; place-items:center; padding:24px}
-    .card{width:min(480px,100%); background:rgba(17,24,39,.8); border:1px solid rgba(255,255,255,.06); border-radius:16px; padding:24px; box-shadow:0 10px 30px rgba(0,0,0,.45)}
+    .card{width:min(520px,100%); background:rgba(17,24,39,.85); border:1px solid rgba(255,255,255,.06); border-radius:16px; padding:24px; box-shadow:0 10px 30px rgba(0,0,0,.45)}
     h1{margin:0 0 6px; color:var(--text); font-size:24px; letter-spacing:.3px}
     p{margin:0 0 18px; color:var(--muted); font-size:14px}
     label{display:block; color:var(--text); font-weight:600; margin-bottom:8px}
@@ -17,16 +17,14 @@
     .row{display:flex; gap:10px; align-items:center; margin-top:14px}
     button{appearance:none; border:0; background:var(--accent); color:#0b1020; font-weight:700; padding:12px 16px; border-radius:10px; cursor:pointer}
     button[disabled]{opacity:.6; cursor:not-allowed}
-    .msg{margin-top:14px; font-size:14px}
-    .ok{color:#86efac}
-    .err{color:var(--danger)}
-    footer{margin-top:16px; color:#94a3b8; font-size:12px}
-    .small{font-size:12px; color:#9ca3af}
-    table{width:100%; border-collapse:collapse; margin-top:12px}
+    .msg{margin-left:8px; font-size:14px}
+    .ok{color:#86efac} .err{color:var(--danger)}
+    .toolbar{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:18px}
+    table{width:100%; border-collapse:collapse; margin-top:10px}
     th,td{padding:10px 12px; border-bottom:1px solid #1f2937; color:var(--text); font-size:14px}
     th{color:#cbd5e1; text-align:left; font-weight:700}
-    .toolbar{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:18px}
-    .ghost{background:#0b1020; color:#cbd5e1; border:1px solid #1f2937}
+    footer{margin-top:16px; color:#94a3b8; font-size:12px}
+    .small{font-size:12px; color:#9ca3af}
   </style>
 </head>
 <body>
@@ -45,92 +43,57 @@
         <p class="small">Dengan mengirim, Anda menyetujui email dicatat untuk proses undangan tim.</p>
       </form>
 
-            <div class="toolbar">
+      <div class="toolbar">
         <h2 style="margin:0;color:var(--text);font-size:18px">Daftar Email Terkirim</h2>
-        <div>
-          <button type="button" id="refreshBtn" class="ghost">Muat Ulang</button>
-        </div>
+        <div><button type="button" id="refreshBtn" style="background:#0b1020;color:#cbd5e1;border:1px solid #1f2937">Muat Ulang</button></div>
       </div>
-      <div id="listWrap">
-        <table id="emailTable" aria-live="polite">
-          <thead>
-            <tr><th style="width:45%">Email</th><th>Waktu</th></tr>
-          </thead>
-          <tbody id="emailTbody">
-            <tr><td colspan="2" class="small">Memuat data…</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <table id="emailTable" aria-live="polite">
+        <thead><tr><th style="width:45%">Email</th><th>Waktu</th></tr></thead>
+        <tbody id="emailTbody"><tr><td colspan="2" class="small">Memuat data…</td></tr></tbody>
+      </table>
 
       <footer>© <span id="year"></span> — Form Canva Pro</footer>
     </div>
   </div>
 
   <script>
-    // === GANTI URL WEB APP ANDA DI SINI ===
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwFpuNWaswWKcBii7LX8qbM_bTDNjdUCjJLEhgf-1j6FSnVNAwEOleA5QKo7eGaCm53OQ/exec"; // paste URL Web App Apps Script Anda
+    // === GANTI URL WEB APP ANDA DI SINI (akhiran /exec) ===
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwhsa0fnrVi4kWwwLFE467fhbNX6AMWv_kc4H-LGnKMsemADppTHzIudYzq_8Vw0INoAQ/exec";
 
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Helper JSONP
+    function jsonp(url){
+      return new Promise((resolve, reject)=>{
+        const cb = '__cb_' + Math.random().toString(36).slice(2);
+        const sep = url.includes('?') ? '&' : '?';
+        const src = url + sep + 'callback=' + cb + '&_=' + Date.now();
+        const s = document.createElement('script');
+        window[cb] = (data)=>{ cleanup(); resolve(data); };
+        function cleanup(){ delete window[cb]; if(s && s.parentNode) s.parentNode.removeChild(s); }
+        s.src = src;
+        s.onerror = ()=>{ cleanup(); reject(new Error('Gagal memuat')); };
+        document.body.appendChild(s);
+      });
+    }
+
+    // UI refs
     const f = document.getElementById('emailForm');
     const input = document.getElementById('email');
     const btn = document.getElementById('submitBtn');
     const statusEl = document.getElementById('status');
-    document.getElementById('year').textContent = new Date().getFullYear();
+    const tbody = document.getElementById('emailTbody');
+    const refreshBtn = document.getElementById('refreshBtn');
 
     function setStatus(text, ok=true){
       statusEl.textContent = text;
       statusEl.className = 'msg ' + (ok ? 'ok' : 'err');
     }
 
-    f.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      statusEl.textContent = '';
-
-      const email = (input.value || '').trim();
-      if(!email){ setStatus('Email wajib diisi', false); input.focus(); return; }
-      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ setStatus('Format email tidak valid', false); input.focus(); return; }
-
-      btn.disabled = true;
-      btn.textContent = 'Mengirim…';
-
-      try{
-        const res = await fetch(WEB_APP_URL, {
-          method: 'POST',
-          mode: 'cors',
-          headers: { 'Content-Type':'application/json' },
-          body: JSON.stringify({ email })
-        });
-
-        if(!res.ok){
-          const t = await res.text().catch(()=> '');
-          throw new Error('Gagal mengirim: ' + (t || res.status + ' ' + res.statusText));
-        }
-
-        const data = await res.json().catch(()=>({ ok:false, message:'Respon tidak dikenal' }));
-        if(data.ok){
-          setStatus('Berhasil! Email sudah tercatat.');
-          f.reset();
-        }else{
-          setStatus(data.message || 'Terjadi kesalahan saat mencatat.', false);
-        }
-      }catch(err){
-        setStatus(err.message || 'Terjadi kesalahan jaringan.', false);
-      }finally{
-        btn.disabled = false;
-        btn.textContent = 'Kirim';
-      }
-    });
-  </script>
-  <script>
-    // Bagian daftar email (read-only)
-    const tbody = document.getElementById('emailTbody');
-    const refreshBtn = document.getElementById('refreshBtn');
-
     async function loadList(){
       try{
-        const url = WEB_APP_URL + (WEB_APP_URL.includes('?') ? '&' : '?') + 'list=1&limit=50';
-        const res = await fetch(url, { method: 'GET', mode: 'cors' });
-        if(!res.ok) throw new Error('Gagal memuat daftar');
-        const data = await res.json();
+        tbody.innerHTML = '<tr><td colspan="2" class="small">Memuat data…</td></tr>';
+        const data = await jsonp(WEB_APP_URL + '?action=list&limit=50');
         tbody.innerHTML = '';
         const rows = (data && data.rows) || [];
         if(rows.length === 0){
@@ -148,29 +111,35 @@
           tbody.appendChild(tr);
         }
       }catch(err){
-        tbody.innerHTML = '<tr><td colspan="2" class="small">' + (err.message || 'Gagal memuat') + '</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="2" class="small">'+(err.message || 'Gagal memuat')+'</td></tr>';
       }
     }
 
-    // Wrapper: setiap POST sukses ke WEB_APP_URL, refresh daftar
-    (function(){
-      const _fetch = window.fetch.bind(window);
-      window.fetch = async function(){
-        const args = Array.from(arguments);
-        const res = await _fetch.apply(window, args);
-        try{
-          const url = String(args[0] || '');
-          const method = ((args[1] && args[1].method) || 'GET').toUpperCase();
-          if(url.indexOf(WEB_APP_URL) === 0 && method === 'POST'){
-            // sedikit tunda agar Apps Script selesai menulis ke sheet
-            setTimeout(loadList, 300);
-          }
-        }catch(e){}
-        return res;
-      }
-    })();
+    f.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      setStatus('');
+      const email = (input.value || '').trim();
+      if(!email){ setStatus('Email wajib diisi', false); input.focus(); return; }
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ setStatus('Format email tidak valid', false); input.focus(); return; }
 
-    if(refreshBtn){ refreshBtn.addEventListener('click', loadList); }
+      btn.disabled = true; btn.textContent = 'Mengirim…';
+      try{
+        const data = await jsonp(WEB_APP_URL + '?action=add&email=' + encodeURIComponent(email));
+        if(data && data.ok){
+          setStatus('Berhasil! Email sudah tercatat.');
+          f.reset();
+          loadList();
+        }else{
+          setStatus((data && data.message) || 'Gagal mencatat.', false);
+        }
+      }catch(err){
+        setStatus(err.message || 'Gagal mengirim.', false);
+      }finally{
+        btn.disabled = false; btn.textContent = 'Kirim';
+      }
+    });
+
+    refreshBtn.addEventListener('click', (e)=>{ e.preventDefault(); loadList(); });
     loadList();
   </script>
 </body>
