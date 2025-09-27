@@ -9,7 +9,7 @@
     *{box-sizing:border-box}
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;background:#ffffff;color:var(--text)}
     .container{min-height:100dvh;display:grid;place-items:center;padding:24px}
-    .card{width:min(520px,100%);background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.08);margin:0 auto}
+    .card{width:min(520px,100%);background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;box-shadow:0 4px 8px rgba(16,24,40,.06), 0 20px 32px rgba(16,24,40,.10);margin:0 auto}
     h1{margin:0 0 18px;color:#111827;font-size:24px;letter-spacing:.3px;display:flex;align-items:center;justify-content:center;gap:8px}
     p{margin:0 0 18px;color:var(--muted);font-size:14px}
     label{display:block;color:var(--text);font-weight:600;margin-bottom:8px}
@@ -38,9 +38,9 @@
     .btn-ico svg{width:20px;height:20px;display:block;color:var(--accent)}
       /* Topbar */
     .topbar{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:#ffffff;border-bottom:1px solid #e5e7eb}
-    .brand{display:flex;align-items:center;gap:8px;color:var(--text);font-weight:800;letter-spacing:.3px}
-    .brand .gift{font-size:18px}
-    .btn-contact{appearance:none;border:0;background:var(--accent);color:#ffffff;text-decoration:none;padding:8px 12px;border-radius:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+    .brand{display:flex;align-items:center;gap:8px;color:var(--text);font-weight:800;letter-spacing:.3px;font-size:18px}
+    .brand .gift{font-size:22px}
+    .btn-contact{appearance:none;border:0;background:var(--accent);color:#ffffff;text-decoration:none;padding:10px 16px;border-radius:10px;font-weight:700;font-size:15px;display:inline-flex;align-items:center;justify-content:center}
       /* Smooth scroll */
     html{scroll-behavior:smooth}
     /* Help banner under the form */
@@ -61,7 +61,7 @@
     .footer-col a{color:#cbd5e1;text-decoration:none}
     .footer-col a:hover{text-decoration:underline}
     .footer-line{border:0;border-top:1px solid #374151;margin:32px 0}
-    .footer-bottom{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;color:#9ca3af}
+    .footer-bottom{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#9ca3af;text-align:center;font-size:12px}
     .footer-bottom .madeby .heart{margin:0 6px}
     @media (max-width:900px){.footer-grid{grid-template-columns:1fr 1fr}}
     @media (max-width:600px){.footer-grid{grid-template-columns:1fr}}
@@ -75,7 +75,7 @@
   </header>
   <div class="container">
     <div class="card">
-      <h1><span class="title-emoji" aria-hidden="true">🎁</span> Berbagi Canva Pro</h1>
+      <h1><span class="title-emoji" aria-hidden="true">🎁</span>Berbagi Canva Pro</h1>
       <p>Masukkan email yang akan diundang ke tim Canva Pro. Jika sudah full maka akan di proses invite.</p>
 
       <form id="emailForm" novalidate>
@@ -113,10 +113,10 @@
   <!-- Help / Contact section -->
   <section id="hubungi" class="help-banner" role="region" aria-labelledby="help-title">
     <div class="help-inner">
-      <h3 id="help-title" class="help-title">Takut kode tidak bekerja dengan baik?</h3>
-      <p class="help-desc">Tenang, kami menjamin kode yang kami berikan telah melalui proses pengecekan ketat.</p>
+      <h3 id="help-title" class="help-title">WEBSITE RESMI BERBAGI CANVA PRO ISGUNANDA</h3>
+      <p class="help-desc">Kami berbagi Canva Pro dengan gratis bagi 40 orang yang telah memasukkan email canva-nya.</p>
       <p class="help-desc">Selain itu, kami juga menawarkan berbagai layanan digital lainnya yang bisa disesuaikan dengan kebutuhan kamu.</p>
-      <a href="whatsapp://send?phone=6285811554469&text=halo%20admin" class="btn-big">HUBUNGI ADMIN</a>
+      <a href="https://ispremium.vercel.app" class="btn-big">KLIK DISINI</a>
     </div>
   </section>
 
@@ -125,14 +125,14 @@
     <div class="footer-inner">
       <div class="footer-grid">
         <div class="footer-about">
-          <h4>CANVA AUTO INVITE</h4>
-          <p class="lead">Layanan Undangan Canva Terpercaya</p>
-          <p class="desc">Kami menyediakan layanan undangan Canva yang terjamin keamanannya. Setiap kode yang kami berikan telah melalui proses verifikasi untuk memastikan pengalaman terbaik bagi pengguna.</p>
+          <h4>BERBAGI CANVA PRO</h4>
+          <p class="lead">Layanan Berbagi Isgunanda</p>
+          <p class="desc">Cukup masukkan email kamu, dan kami akan mengundangmu ke tim Canva Pro. Terjamin aman dan memberikan pengalaman terbaik bagi member</p>
         </div>
         <div class="footer-col">
           <h5>Layanan</h5>
           <ul>
-            <li><a href="#emailForm">Undangan Canva</a></li>
+            <li><a href="#emailForm">Berbagi Canva Pro</a></li>
             <li><a href="#hubungi">Bantuan Teknis</a></li>
           </ul>
         </div>
@@ -153,8 +153,8 @@
       </div>
       <hr class="footer-line" />
       <div class="footer-bottom">
-        <div>© <span id="year-footer"></span> HEALERCOIS.COM All rights reserved.</div>
-        <div class="madeby">Made with <span class="heart">❤️</span>by<strong>Healer Cois</strong></div>
+        <div>© <span id="year-footer"></span> HEALERCOIS.ID All rights reserved.</div>
+        <div class="madeby">Made with<span class="heart">❤️</span>by <strong>Gunanda</strong></div>
       </div>
     </div>
   </section>
@@ -276,7 +276,7 @@
       const phone = '6285811554469';
       const text  = encodeURIComponent('halo admin');
       const deep  = 'whatsapp://send?phone='+phone+'&text='+text;
-      const web   = 'https://wa.me/'+phone+'?text='+text;
+      const web   = 'https://ispremium.vercel.app';
       const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
       document.querySelectorAll('.btn-contact, .btn-big, .wa-link').forEach(a=>{
         a.setAttribute('href', isMobile ? deep : web);
