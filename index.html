@@ -55,7 +55,7 @@
 
       <div id="counterWrap">
         <div class="countRow">
-          <div class="countNumber"><span id="count">0</span> <span class="small">/ 50</span></div>
+          <div class="countNumber"><span id="count">0</span> <span class="small">/ 40</span></div>
         </div>
         <div class="meter"><div id="meterBar" class="meter-bar"></div></div>
         <p class="small" id="quotaMsg"></p>
@@ -73,8 +73,8 @@
 
   <script>
     // === GANTI URL WEB APP ANDA (akhiran /exec) ===
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxjCfIT7o4KW0fmFbhK_XFXDb6_s_36zBAkiUEC6uLghlg7ErFaUCIF_P4lM0PkvLYYhw/exec";
-    const MAX = 50;
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx3NJ4x53om3oDGHbvBv-gI0fsgIynC7HlopXTEPi0dtS7uU0l2Hmy0LWdZ9qbFt3kewQ/exec";
+    const MAX = 40;
 
     // JSONP helper (hindari CORS)
     function jsonp(url){
@@ -116,7 +116,7 @@
       meterBar.style.width = pct + '%';
       if(n >= MAX){
         input.disabled = true; btn.disabled = true;
-        quotaMsg.textContent = 'Kuota penuh (50/50). Pendaftaran ditutup.';
+        quotaMsg.textContent = 'Kuota penuh (40/40). Pendaftaran ditutup.';
       }else{
         input.disabled = false; btn.disabled = false;
         quotaMsg.textContent = 'Sisa kuota: ' + (MAX - n) + ' email.';
