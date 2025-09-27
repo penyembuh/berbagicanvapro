@@ -3,46 +3,86 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Form Input Email</title>
+  <title>Berbagi Canva Pro</title>
   <style>
-    :root { --bg:#0f172a; --muted:#9ca3af; --text:#e5e7eb; --accent:#22c55e; --danger:#ef4444; }
+    :root { --bg:#ffffff; --muted:#6b7280; --text:#111827; --accent:#3b82f6; --danger:#ef4444; }
     *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;background:linear-gradient(180deg,#0b1220,#0f172a 30%)}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;background:#ffffff;color:var(--text)}
     .container{min-height:100dvh;display:grid;place-items:center;padding:24px}
-    .card{width:min(520px,100%);background:rgba(17,24,39,.85);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
-    h1{margin:0 0 6px;color:var(--text);font-size:24px;letter-spacing:.3px}
+    .card{width:min(520px,100%);background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.08);margin:0 auto}
+    h1{margin:0 0 18px;color:#111827;font-size:24px;letter-spacing:.3px;display:flex;align-items:center;justify-content:center;gap:8px}
     p{margin:0 0 18px;color:var(--muted);font-size:14px}
     label{display:block;color:var(--text);font-weight:600;margin-bottom:8px}
-    input[type=email]{width:100%;background:#0b1020;border:1px solid #1f2937;color:var(--text);padding:12px 14px;border-radius:10px;outline:none;font-size:16px}
-    input[type=email]:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.25)}
-    .row{display:flex;gap:10px;align-items:center;margin-top:14px}
-    button{appearance:none;border:0;background:var(--accent);color:#0b1020;font-weight:700;padding:12px 16px;border-radius:10px;cursor:pointer}
+    input[type=email]{width:100%;background:#ffffff;border:1px solid #e5e7eb;color:#111827;padding:12px 14px;border-radius:10px;outline:none;font-size:16px}
+    input[type=email]:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.18)}
+    .row{display:flex;flex-direction:column;gap:10px;align-items:stretch;margin-top:14px}
+    button{appearance:none;border:0;background:var(--accent);color:#ffffff;font-weight:700;padding:12px 16px;border-radius:10px;cursor:pointer}
     button[disabled]{opacity:.6;cursor:not-allowed}
-    .msg{margin-left:8px;font-size:14px}
-    .ok{color:#86efac}.err{color:var(--danger)}
+    .msg{margin-left:0;font-size:14px;text-align:center}
+    .ok{color:#93c5fd}.err{color:var(--danger)}
     .toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:18px}
-    .ghost{background:#0b1020;color:#cbd5e1;border:1px solid #1f2937}
-    .meter{height:10px;background:#0b1020;border:1px solid #1f2937;border-radius:999px;overflow:hidden;margin-top:8px}
-    .meter-bar{height:100%;background:linear-gradient(90deg,#22c55e,#16a34a);width:0%}
+    .ghost{background:#f9fafb;color:#111827;border:1px solid #e5e7eb}
+    .meter{height:10px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:999px;overflow:hidden;margin-top:8px}
+    .meter-bar{height:100%;background:linear-gradient(90deg,#3b82f6,#2563eb);width:0%}
     .countRow{display:flex;align-items:baseline;gap:8px;margin-top:8px}
     .countNumber{font-size:28px;color:var(--text);font-weight:800}
-    footer{margin-top:16px;color:#94a3b8;font-size:12px}
+    footer{margin-top:16px;color:#6b7280;font-size:12px}
     .small{font-size:12px;color:#9ca3af}
     .admin{margin-top:12px}
     .link{background:#0b1020;color:#cbd5e1;border:1px solid #1f2937;padding:8px 10px;border-radius:8px;cursor:pointer}
+    #submitBtn{width:100%;display:flex;align-items:center;justify-content:center;gap:4px;line-height:1.1}
+    .title-emoji{display:inline-flex;align-items:center;line-height:1}
+    /* Center the consent line under the form only */
+    #emailForm .small{ text-align:center; }
+    .btn-ico{display:inline-flex;align-items:center;justify-content:center;margin-right:0;line-height:1}
+    .btn-ico svg{width:20px;height:20px;display:block;color:var(--accent)}
+      /* Topbar */
+    .topbar{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:#ffffff;border-bottom:1px solid #e5e7eb}
+    .brand{display:flex;align-items:center;gap:8px;color:var(--text);font-weight:800;letter-spacing:.3px}
+    .brand .gift{font-size:18px}
+    .btn-contact{appearance:none;border:0;background:var(--accent);color:#ffffff;text-decoration:none;padding:8px 12px;border-radius:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+      /* Smooth scroll */
+    html{scroll-behavior:smooth}
+    /* Help banner under the form */
+    .help-banner{max-width:1100px;margin:40px auto 60px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:16px}
+    .help-inner{padding:42px 22px;text-align:center}
+    .help-title{margin:0 0 14px;font-weight:800;color:#111827;font-size:clamp(24px,4vw,40px);line-height:1.2;font-family:system-ui,-apple-system,'Segoe UI',Roboto,Ubuntu,'Helvetica Neue',Arial,'Noto Sans',sans-serif;letter-spacing:0}
+    .help-desc{margin:8px 0;color:#4b5563;font-size:clamp(14px,2vw,18px);line-height:1.7}
+    .btn-big{display:inline-flex;align-items:center;justify-content:center;margin-top:22px;padding:16px 28px;border-radius:12px;background:#3b82f6;color:#fff;text-decoration:none;font-weight:800;letter-spacing:.3px;box-shadow:0 8px 18px rgba(59,130,246,.25)}
+      /* Footer styles */
+    .site-footer{background:#1f2937;color:#e5e7eb;padding:48px 20px}
+    .footer-inner{max-width:1200px;margin:0 auto}
+    .footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px}
+    .footer-about h4{margin:0 0 8px;font-size:22px;font-weight:800;color:#f3f4f6}
+    .footer-about .lead{margin:0 0 12px;color:#cbd5e1;font-size:16px}
+    .footer-about .desc{margin:0;color:#9ca3af;line-height:1.7}
+    .footer-col h5{margin:0 0 12px;font-size:18px;font-weight:800;color:#f3f4f6}
+    .footer-col ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+    .footer-col a{color:#cbd5e1;text-decoration:none}
+    .footer-col a:hover{text-decoration:underline}
+    .footer-line{border:0;border-top:1px solid #374151;margin:32px 0}
+    .footer-bottom{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;color:#9ca3af}
+    .footer-bottom .madeby .heart{margin:0 6px}
+    @media (max-width:900px){.footer-grid{grid-template-columns:1fr 1fr}}
+    @media (max-width:600px){.footer-grid{grid-template-columns:1fr}}
+      .btn-big:hover{filter:brightness(0.95)}
   </style>
 </head>
 <body>
+  <header class="topbar">
+    <div class="brand"><span class="gift" aria-hidden="true">🎁</span><span>CANVA PRO TIM</span></div>
+    <a class="btn-contact" href="whatsapp://send?phone=6285811554469&text=halo%20admin">Hubungi</a>
+  </header>
   <div class="container">
     <div class="card">
-      <h1>Form Input Email</h1>
-      <p>Masukkan email yang akan diundang ke tim Canva Pro. Data otomatis tercatat ke Google Sheets.</p>
+      <h1><span class="title-emoji" aria-hidden="true">🎁</span> Berbagi Canva Pro</h1>
+      <p>Masukkan email yang akan diundang ke tim Canva Pro. Jika sudah full maka akan di proses invite.</p>
 
       <form id="emailForm" novalidate>
         <label for="email">Alamat Email</label>
         <input id="email" name="email" type="email" placeholder="nama@email.com" required />
         <div class="row">
-          <button id="submitBtn" type="submit">Kirim</button>
+          <button id="submitBtn" type="submit"><span class="btn-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none"><circle cx="12" cy="12" r="8" fill="#ffffff"/><path d="M9.2 12.5l2.1 2.1 4.1-4.1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Kirim</button>
           <span id="status" class="msg" aria-live="polite"></span>
         </div>
         <p class="small">Dengan mengirim, Anda menyetujui email dicatat untuk proses undangan tim.</p>
@@ -67,9 +107,57 @@
         <span class="small" id="resetMsg"></span>
       </div>
 
-      <footer>© <span id="year"></span> — Form Canva Pro</footer>
+      
     </div>
   </div>
+  <!-- Help / Contact section -->
+  <section id="hubungi" class="help-banner" role="region" aria-labelledby="help-title">
+    <div class="help-inner">
+      <h3 id="help-title" class="help-title">Takut kode tidak bekerja dengan baik?</h3>
+      <p class="help-desc">Tenang, kami menjamin kode yang kami berikan telah melalui proses pengecekan ketat.</p>
+      <p class="help-desc">Selain itu, kami juga menawarkan berbagai layanan digital lainnya yang bisa disesuaikan dengan kebutuhan kamu.</p>
+      <a href="whatsapp://send?phone=6285811554469&text=halo%20admin" class="btn-big">HUBUNGI ADMIN</a>
+    </div>
+  </section>
+
+  <!-- Site Footer -->
+  <section class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div class="footer-about">
+          <h4>CANVA AUTO INVITE</h4>
+          <p class="lead">Layanan Undangan Canva Terpercaya</p>
+          <p class="desc">Kami menyediakan layanan undangan Canva yang terjamin keamanannya. Setiap kode yang kami berikan telah melalui proses verifikasi untuk memastikan pengalaman terbaik bagi pengguna.</p>
+        </div>
+        <div class="footer-col">
+          <h5>Layanan</h5>
+          <ul>
+            <li><a href="#emailForm">Undangan Canva</a></li>
+            <li><a href="#hubungi">Bantuan Teknis</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Informasi</h5>
+          <ul>
+            <li><a href="#" target="_blank" rel="noopener">Channel Telegram</a></li>
+            <li><a href="#hubungi">Cara Order</a></li>
+            <li><a href="#" class="wa-link">Hubungi Admin</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Lainnya</h5>
+          <ul>
+            <li><a href="#">FAQ</a></li>
+          </ul>
+        </div>
+      </div>
+      <hr class="footer-line" />
+      <div class="footer-bottom">
+        <div>© <span id="year-footer"></span> SHANING.ID All rights reserved.</div>
+        <div class="madeby">Made with <span class="heart">❤️</span> by <strong>Arthurwithyou</strong></div>
+      </div>
+    </div>
+  </section>
 
   <script>
     // === GANTI URL WEB APP ANDA (akhiran /exec) ===
@@ -95,6 +183,8 @@
     const f = document.getElementById('emailForm');
     const input = document.getElementById('email');
     const btn = document.getElementById('submitBtn');
+    const BTN_LABEL = '<span class="btn-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none"><circle cx="12" cy="12" r="8" fill="#ffffff"/><path d="M9.2 12.5l2.1 2.1 4.1-4.1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Kirim';
+    btn.innerHTML = BTN_LABEL;
     const statusEl = document.getElementById('status');
     const countEl = document.getElementById('count');
     const meterBar = document.getElementById('meterBar');
@@ -103,7 +193,8 @@
     const adminPanel = document.getElementById('adminPanel');
     const resetBtn = document.getElementById('resetBtn');
     const resetMsg = document.getElementById('resetMsg');
-    document.getElementById('year').textContent = new Date().getFullYear();
+    var y = document.getElementById('year'); if(y) y.textContent = new Date().getFullYear();
+    var yf = document.getElementById('year-footer'); if(yf) yf.textContent = new Date().getFullYear();
 
     function setStatus(text, ok=true){
       statusEl.textContent = text;
@@ -139,7 +230,7 @@
       if(!email){ setStatus('Email wajib diisi', false); input.focus(); return; }
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ setStatus('Format email tidak valid', false); input.focus(); return; }
 
-      btn.disabled = true; btn.textContent = 'Mengirim…';
+      btn.disabled = true; btn.innerHTML = 'Mengirim…';
       try{
         const data = await jsonp(WEB_APP_URL + '?action=add&email=' + encodeURIComponent(email));
         if(data && data.ok){
@@ -152,7 +243,7 @@
       }catch(err){
         setStatus(err.message || 'Gagal mengirim.', false);
       }finally{
-        btn.disabled = false; btn.textContent = 'Kirim';
+        btn.disabled = false; btn.innerHTML = BTN_LABEL;
       }
     });
 
@@ -179,6 +270,20 @@
         }
       });
     }
+
+    // Deep link WhatsApp (mobile) + fallback (desktop)
+    (function(){
+      const phone = '6285811554469';
+      const text  = encodeURIComponent('halo admin');
+      const deep  = 'whatsapp://send?phone='+phone+'&text='+text;
+      const web   = 'https://wa.me/'+phone+'?text='+text;
+      const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+      document.querySelectorAll('.btn-contact, .btn-big, .wa-link').forEach(a=>{
+        a.setAttribute('href', isMobile ? deep : web);
+        a.setAttribute('rel','noopener');
+        a.setAttribute('target','_blank');
+      });
+    })();
 
     // Init
     fetchCount();
