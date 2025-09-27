@@ -6,25 +6,30 @@
   <title>Form Input Email</title>
   <style>
     :root { --bg:#0f172a; --muted:#9ca3af; --text:#e5e7eb; --accent:#22c55e; --danger:#ef4444; }
-    *{box-sizing:border-box} body{margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif; background:linear-gradient(180deg,#0b1220,#0f172a 30%);}
-    .container{min-height:100dvh; display:grid; place-items:center; padding:24px}
-    .card{width:min(520px,100%); background:rgba(17,24,39,.85); border:1px solid rgba(255,255,255,.06); border-radius:16px; padding:24px; box-shadow:0 10px 30px rgba(0,0,0,.45)}
-    h1{margin:0 0 6px; color:var(--text); font-size:24px; letter-spacing:.3px}
-    p{margin:0 0 18px; color:var(--muted); font-size:14px}
-    label{display:block; color:var(--text); font-weight:600; margin-bottom:8px}
-    input[type=email]{width:100%; background:#0b1020; border:1px solid #1f2937; color:var(--text); padding:12px 14px; border-radius:10px; outline:none; font-size:16px}
-    input[type=email]:focus{border-color:#3b82f6; box-shadow:0 0 0 3px rgba(59,130,246,.25)}
-    .row{display:flex; gap:10px; align-items:center; margin-top:14px}
-    button{appearance:none; border:0; background:var(--accent); color:#0b1020; font-weight:700; padding:12px 16px; border-radius:10px; cursor:pointer}
-    button[disabled]{opacity:.6; cursor:not-allowed}
-    .msg{margin-left:8px; font-size:14px}
-    .ok{color:#86efac} .err{color:var(--danger)}
-    .toolbar{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:18px}
-    table{width:100%; border-collapse:collapse; margin-top:10px}
-    th,td{padding:10px 12px; border-bottom:1px solid #1f2937; color:var(--text); font-size:14px}
-    th{color:#cbd5e1; text-align:left; font-weight:700}
-    footer{margin-top:16px; color:#94a3b8; font-size:12px}
-    .small{font-size:12px; color:#9ca3af}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;background:linear-gradient(180deg,#0b1220,#0f172a 30%)}
+    .container{min-height:100dvh;display:grid;place-items:center;padding:24px}
+    .card{width:min(520px,100%);background:rgba(17,24,39,.85);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+    h1{margin:0 0 6px;color:var(--text);font-size:24px;letter-spacing:.3px}
+    p{margin:0 0 18px;color:var(--muted);font-size:14px}
+    label{display:block;color:var(--text);font-weight:600;margin-bottom:8px}
+    input[type=email]{width:100%;background:#0b1020;border:1px solid #1f2937;color:var(--text);padding:12px 14px;border-radius:10px;outline:none;font-size:16px}
+    input[type=email]:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.25)}
+    .row{display:flex;gap:10px;align-items:center;margin-top:14px}
+    button{appearance:none;border:0;background:var(--accent);color:#0b1020;font-weight:700;padding:12px 16px;border-radius:10px;cursor:pointer}
+    button[disabled]{opacity:.6;cursor:not-allowed}
+    .msg{margin-left:8px;font-size:14px}
+    .ok{color:#86efac}.err{color:var(--danger)}
+    .toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:18px}
+    .ghost{background:#0b1020;color:#cbd5e1;border:1px solid #1f2937}
+    .meter{height:10px;background:#0b1020;border:1px solid #1f2937;border-radius:999px;overflow:hidden;margin-top:8px}
+    .meter-bar{height:100%;background:linear-gradient(90deg,#22c55e,#16a34a);width:0%}
+    .countRow{display:flex;align-items:baseline;gap:8px;margin-top:8px}
+    .countNumber{font-size:28px;color:var(--text);font-weight:800}
+    footer{margin-top:16px;color:#94a3b8;font-size:12px}
+    .small{font-size:12px;color:#9ca3af}
+    .admin{margin-top:12px}
+    .link{background:#0b1020;color:#cbd5e1;border:1px solid #1f2937;padding:8px 10px;border-radius:8px;cursor:pointer}
   </style>
 </head>
 <body>
@@ -44,25 +49,34 @@
       </form>
 
       <div class="toolbar">
-        <h2 style="margin:0;color:var(--text);font-size:18px">Daftar Email Terkirim</h2>
-        <div><button type="button" id="refreshBtn" style="background:#0b1020;color:#cbd5e1;border:1px solid #1f2937">Muat Ulang</button></div>
+        <h2 style="margin:0;color:var(--text);font-size:18px">Jumlah Email Masuk</h2>
+        <div><button type="button" id="refreshBtn" class="ghost">Muat Ulang</button></div>
       </div>
-      <table id="emailTable" aria-live="polite">
-        <thead><tr><th style="width:45%">Email</th><th>Waktu</th></tr></thead>
-        <tbody id="emailTbody"><tr><td colspan="2" class="small">Memuat data…</td></tr></tbody>
-      </table>
+
+      <div id="counterWrap">
+        <div class="countRow">
+          <div class="countNumber"><span id="count">0</span> <span class="small">/ 50</span></div>
+        </div>
+        <div class="meter"><div id="meterBar" class="meter-bar"></div></div>
+        <p class="small" id="quotaMsg"></p>
+      </div>
+
+      <!-- Panel admin opsional: muncul jika URL mengandung ?admin=1 -->
+      <div id="adminPanel" class="admin" style="display:none">
+        <button id="resetBtn" class="link">Admin: Reset kuota</button>
+        <span class="small" id="resetMsg"></span>
+      </div>
 
       <footer>© <span id="year"></span> — Form Canva Pro</footer>
     </div>
   </div>
 
   <script>
-    // === GANTI URL WEB APP ANDA DI SINI (akhiran /exec) ===
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwhsa0fnrVi4kWwwLFE467fhbNX6AMWv_kc4H-LGnKMsemADppTHzIudYzq_8Vw0INoAQ/exec";
+    // === GANTI URL WEB APP ANDA (akhiran /exec) ===
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxjCfIT7o4KW0fmFbhK_XFXDb6_s_36zBAkiUEC6uLghlg7ErFaUCIF_P4lM0PkvLYYhw/exec";
+    const MAX = 50;
 
-    document.getElementById('year').textContent = new Date().getFullYear();
-
-    // Helper JSONP
+    // JSONP helper (hindari CORS)
     function jsonp(url){
       return new Promise((resolve, reject)=>{
         const cb = '__cb_' + Math.random().toString(36).slice(2);
@@ -82,36 +96,39 @@
     const input = document.getElementById('email');
     const btn = document.getElementById('submitBtn');
     const statusEl = document.getElementById('status');
-    const tbody = document.getElementById('emailTbody');
+    const countEl = document.getElementById('count');
+    const meterBar = document.getElementById('meterBar');
+    const quotaMsg = document.getElementById('quotaMsg');
     const refreshBtn = document.getElementById('refreshBtn');
+    const adminPanel = document.getElementById('adminPanel');
+    const resetBtn = document.getElementById('resetBtn');
+    const resetMsg = document.getElementById('resetMsg');
+    document.getElementById('year').textContent = new Date().getFullYear();
 
     function setStatus(text, ok=true){
       statusEl.textContent = text;
       statusEl.className = 'msg ' + (ok ? 'ok' : 'err');
     }
 
-    async function loadList(){
-      try{
-        tbody.innerHTML = '<tr><td colspan="2" class="small">Memuat data…</td></tr>';
-        const data = await jsonp(WEB_APP_URL + '?action=list&limit=50');
-        tbody.innerHTML = '';
-        const rows = (data && data.rows) || [];
-        if(rows.length === 0){
-          tbody.innerHTML = '<tr><td colspan="2" class="small">Belum ada data.</td></tr>';
-          return;
-        }
-        for(const r of rows){
-          const tr = document.createElement('tr');
-          const tdEmail = document.createElement('td');
-          const tdTime = document.createElement('td');
-          tdEmail.textContent = r.email || '-';
-          tdTime.textContent = r.timestamp || '-';
-          tr.appendChild(tdEmail);
-          tr.appendChild(tdTime);
-          tbody.appendChild(tr);
-        }
-      }catch(err){
-        tbody.innerHTML = '<tr><td colspan="2" class="small">'+(err.message || 'Gagal memuat')+'</td></tr>';
+    function updateCountUI(n){
+      countEl.textContent = String(n);
+      const pct = Math.max(0, Math.min(100, (n / MAX) * 100));
+      meterBar.style.width = pct + '%';
+      if(n >= MAX){
+        input.disabled = true; btn.disabled = true;
+        quotaMsg.textContent = 'Kuota penuh (50/50). Pendaftaran ditutup.';
+      }else{
+        input.disabled = false; btn.disabled = false;
+        quotaMsg.textContent = 'Sisa kuota: ' + (MAX - n) + ' email.';
+      }
+    }
+
+    async function fetchCount(){
+      const data = await jsonp(WEB_APP_URL + '?action=count');
+      if(data && data.ok){
+        updateCountUI(data.count || 0);
+      }else{
+        quotaMsg.textContent = (data && data.message) || 'Gagal memuat jumlah.';
       }
     }
 
@@ -128,7 +145,7 @@
         if(data && data.ok){
           setStatus('Berhasil! Email sudah tercatat.');
           f.reset();
-          loadList();
+          updateCountUI(data.count); // server balas count terbaru
         }else{
           setStatus((data && data.message) || 'Gagal mencatat.', false);
         }
@@ -139,8 +156,32 @@
       }
     });
 
-    refreshBtn.addEventListener('click', (e)=>{ e.preventDefault(); loadList(); });
-    loadList();
+    refreshBtn.addEventListener('click', (e)=>{ e.preventDefault(); fetchCount(); });
+
+    // Admin panel opsional via ?admin=1
+    const params = new URLSearchParams(location.search);
+    if(params.get('admin') === '1'){
+      adminPanel.style.display = 'block';
+      resetBtn.addEventListener('click', async ()=>{
+        const key = prompt('Masukkan ADMIN_KEY untuk reset kuota:');
+        if(!key) return;
+        resetMsg.textContent = 'Memproses reset…';
+        try{
+          const r = await jsonp(WEB_APP_URL + '?action=reset&key=' + encodeURIComponent(key));
+          if(r && r.ok){
+            resetMsg.textContent = 'Reset OK.';
+            updateCountUI(0);
+          }else{
+            resetMsg.textContent = (r && r.message) || 'Reset gagal.';
+          }
+        }catch(err){
+          resetMsg.textContent = err.message || 'Reset gagal.';
+        }
+      });
+    }
+
+    // Init
+    fetchCount();
   </script>
 </body>
 </html>
