@@ -712,7 +712,8 @@
   function csvEscape(v){
     const s = String(v ?? '');
     const need = /[",
-]/.test(s);
+
+]/.test(s);
     const out = s.replaceAll('"','""');
     return need ? `"${out}"` : out;
   }
